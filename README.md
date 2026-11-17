@@ -33,8 +33,19 @@ The test suites use isolated app data and local fixtures. They require no databa
 
 The repository contains source and assets. Follow the [build instructions](docs/RELEASING.md) to create a portable ZIP or Windows setup locally. Generated executables, vendor binaries, and release archives are kept out of Git.
 
-## Contribute
+## Contributions welcome
 
-Create a branch or fork, run the tests, and open a pull request against `main` for the repository owner to merge. Include source files, tests, and documentation. Keep connection profiles, private keys, environment files, and database exports local. See [security and privacy](SECURITY.md).
+Bug reports, documentation improvements, fixes, and new features are welcome.
+
+- **Repository owner and added collaborators with write access** can push directly to their feature branches in this repository.
+- **Other contributors** can fork the repository and push to a feature branch in their fork.
+- **Everyone** opens a pull request to change `main`. The branch blocks direct pushes, and the repository owner (`@m-1310`) reviews and merges the PRs.
+
+1. Create a feature branch, for example `git switch -c docs/improve-setup`.
+2. Make your change, run the relevant tests, and commit the files you intend to share.
+3. Push your branch, for example `git push -u origin docs/improve-setup`. If you forked the project, push to your fork.
+4. Open a PR targeting `m-1310/ez-bench:main`. Explain what changed and how you tested it.
+
+Keep connection profiles, private keys, environment files, generated executables, and database exports local. See [security and privacy](SECURITY.md).
 
 EZ Bench is [MIT licensed](LICENSE). Dependency and icon notices are included with the app.

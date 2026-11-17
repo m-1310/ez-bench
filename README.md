@@ -37,9 +37,12 @@ The repository contains source and assets. Follow the [build instructions](docs/
 
 Bug reports, documentation improvements, fixes, and new features are welcome.
 
-- **Repository owner and added collaborators with write access** can push directly to their feature branches in this repository.
-- **Other contributors** can fork the repository and push to a feature branch in their fork.
-- **Everyone** opens a pull request to change `main`. The branch blocks direct pushes, and the repository owner (`@m-1310`) reviews and merges the PRs.
+Only the repository owner (`@m-1310`) can push directly to `main` or merge pull requests. The owner can publish commits on `main` with `git push origin main`. GitHub blocks force pushes and deletion of `main`.
+
+Contributors submit changes to `main` through pull requests.
+
+- **Collaborators with write access** can push feature branches to this repository.
+- **Other contributors** can push a feature branch to their own fork.
 
 1. Create a feature branch, for example `git switch -c docs/improve-setup`.
 2. Make your change, run the relevant tests, and commit the files you intend to share.

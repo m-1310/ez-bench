@@ -1,0 +1,77 @@
+# Generated builds, versioned release artifacts, local tools and investigation data.
+/build/
+/releases/
+/target/
+/evidence/
+/graphify-out/
+/app/vendor/
+
+# Dependencies and transient development output.
+node_modules/
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+*.log
+*.tmp
+*.temp
+*.stackdump
+
+# Generated binaries and archives.
+*.exe
+*.dll
+*.msi
+*.msix
+*.node
+*.asar
+*.zip
+*.7z
+
+# Keep user databases, exports, backups and recovery state out of public source.
+/local-data/
+/backups/
+/exports/
+/scratch/
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*.bak
+*.dump
+*.sql.gz
+*.sql
+profiles.json
+history.json
+snippets.json
+
+# Credentials and signing material. Public sample configuration is allowed.
+.env
+.env.*
+!.env.example
+.npmrc
+*.pem
+*.key
+*.ppk
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_ed25519
+*.saz
+*.har
+
+# Per-machine editor and operating-system files.
+.vs/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.user
+*.suo

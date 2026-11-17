@@ -1,0 +1,35 @@
+{
+  "name": "ez-bench",
+  "productName": "EZ Bench",
+  "version": "0.9.8",
+  "private": true,
+  "description": "A desktop SQL workspace for local and remote databases",
+  "main": "main.cjs",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "electron .",
+    "setup": "install-electron",
+    "test": "node --test database.test.cjs profiles.test.cjs database-client.test.cjs table-edit.test.cjs database-transfer.test.cjs ssh-tunnel.test.cjs history-store.test.cjs resource-bounds.test.cjs update-service.test.cjs snippet-store.test.cjs table-browse.test.cjs editor-search.test.cjs",
+    "test:ui": "node --test --test-concurrency=1 ui.test.cjs edit-transfer-ui.test.cjs tabs-ui.test.cjs history-ui.test.cjs editor-workflows-ui.test.cjs update-ui.test.cjs productivity-ui.test.cjs shortcuts-ui.test.cjs sidebar-ui.test.cjs",
+    "build:icons": "node build-icons.cjs",
+    "build:brand": "node build-brand-icon.cjs"
+  },
+  "allowScripts": {
+    "electron": true
+  },
+  "dependencies": {
+    "mssql": "12.7.13",
+    "mysql2": "3.24.6",
+    "pg": "8.23.1",
+    "sql-formatter": "15.9.0",
+    "ssh2": "1.17.0"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "lucide-static": "1.64.0",
+    "playwright": "1.62.1",
+    "rcedit": "5.0.2"
+  }
+}

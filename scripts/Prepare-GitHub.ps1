@@ -28,6 +28,7 @@ foreach($file in Get-ChildItem -LiteralPath (Join-Path $projectRoot 'app') -File
 foreach($name in @('Build-App.ps1','Clean-Artifacts.ps1','Test-Cleanup.ps1','Build-Release.ps1','update-release.cjs','Build-Installer.ps1','Package-App.ps1','Prepare-GitHub.ps1','Start-EZ-Bench.ps1','Start-Work-EZ-Bench.ps1','measure-runtime.cjs')){Copy-PublicFile ('scripts\'+$name)}
 foreach($name in @('EZ-Bench.nsi','Test-Installer.ps1','Verify-Installer.ps1')){Copy-PublicFile ('installer\'+$name)}
 foreach($name in @('UPDATES.md','RELEASING.md','VERIFICATION-0.9.8.md','THIRD-PARTY-DATABASE-TOOLS.md')){Copy-PublicFile ('docs\'+$name)}
+foreach($name in @('workspace-overview.png','sql-editor-and-results.png')){Copy-PublicFile ('docs\screenshots\'+$name)}
 foreach($file in Get-ChildItem -LiteralPath (Join-Path $projectRoot '.github\workflows') -File -ErrorAction SilentlyContinue){Copy-PublicFile ('.github\workflows\'+$file.Name)}
 
 # Test-only live fixture tests are not part of the public source snapshot. The

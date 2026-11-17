@@ -1,6 +1,22 @@
-# EZ Bench
+# <img src="app/icon.png" width="40" height="40" alt=""> EZ Bench
 
 EZ Bench is a Windows desktop SQL client for MySQL, MariaDB, PostgreSQL, SQL Server, and SQLite. It includes a SQL editor, editable tables, query history, snippets, and SSH tunnelling.
+
+[![Windows CI](https://github.com/m-1310/ez-bench/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/m-1310/ez-bench/actions/workflows/build.yml)
+
+[▶ Run EZ Bench](#run-from-a-fresh-clone) · [▣ Screenshots](#screenshots) · [✎ Contribute](#contributions-welcome)
+
+## Screenshots
+
+### Workspace overview
+
+![EZ Bench in dark mode showing connection options, saved connections, and the local SQLite playground](docs/screenshots/workspace-overview.png)
+
+### SQL editor and results
+
+The built-in SQLite playground runs this query against sample customer and order data.
+
+![EZ Bench in light mode showing a SQL join and its six-row result grid](docs/screenshots/sql-editor-and-results.png)
 
 ## Run from a fresh clone
 

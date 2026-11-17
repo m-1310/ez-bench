@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('querydesk', {
   saveSnippet: value => request('snippets:save', value),
   removeSnippet: id => request('snippets:remove', id),
   updateStatus: () => request('updates:status'),
+  openGitUpdateGuide: () => request('updates:open-git-guide'),
   checkUpdates: () => request('updates:check'),
   downloadUpdate: () => request('updates:download'),
   cancelUpdate: () => request('updates:cancel'),

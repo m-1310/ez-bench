@@ -109,6 +109,8 @@ The original app source is MIT licensed. Lucide icons retain their ISC/MIT notic
 
 ## App updates
 
+For a Git installation, choose **View Git update instructions** in the update dialog or follow the [Git update guide](../README.md#update-a-git-installation).
+
 Use **Help > Check for updates** or **Settings > Check for updates**. Checks and downloads run only when requested. Configured builds verify signed release metadata and installer hashes. Save SQL files, finish transactions, apply/discard grid changes and disconnect before **Close and install**. Windows may block unsigned setup. This build has no feed configured; the release owner must configure one before publishing update-enabled builds. Existing 0.5.0 users need a one-time manual upgrade. See [update publishing](../docs/UPDATES.md) in the source snapshot for setup and limitations.
 
 ## Current validation status

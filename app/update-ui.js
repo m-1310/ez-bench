@@ -8,7 +8,11 @@ window.installUpdates = function ({ api, canInstall, toast }) {
     $('#update-message').textContent = state.message;
     $('#update-version').textContent = state.version ? 'Version ' + state.version + (state.bytes ? ' · ' + (state.bytes / 1024 / 1024).toFixed(1) + ' MiB' : '') : '';
     const working = ['checking', 'downloading'].includes(state.phase);
-    $('#update-check').disabled = working || state.phase === 'disabled';
+    const fromGit = state.phase === 'source';
+    $('#update-git-guide').hidden = !fromGit;
+    $('#update-package-note').hidden = fromGit;
+    $('#update-check').hidden = fromGit;
+    $('#update-check').disabled = fromGit || working || state.phase === 'disabled';
     $('#update-download').hidden = !['available', 'downloading'].includes(state.phase);
     $('#update-download').disabled = working;
     $('#update-install').hidden = state.phase !== 'ready';
@@ -43,6 +47,11 @@ window.installUpdates = function ({ api, canInstall, toast }) {
   $('#check-updates').addEventListener('click', () => open().catch(error => toast(error.message)));
   $('#update-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => { if (timer) { clearInterval(timer); timer = null; } });
+  $('#update-git-guide').addEventListener('click', async () => {
+    $('#update-error').textContent = '';
+    try { await api.openGitUpdateGuide(); }
+    catch (error) { $('#update-error').textContent = error.message; }
+  });
   $('#update-check').addEventListener('click', () => run('checkUpdates'));
   $('#update-download').addEventListener('click', () => run('downloadUpdate'));
   $('#update-cancel').addEventListener('click', () => api.cancelUpdate().catch(error => toast(error.message)));

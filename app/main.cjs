@@ -56,7 +56,12 @@ app.whenReady().then(() => {
     return choice.response === 1 ? snippets.remove(id) : false;
   });
   updates = new UpdateService({ config: require('./update-config.json'), currentVersion: app.getVersion(), cacheDir: app.getPath('temp') });
-  handle('updates:status', () => updates.status());
+  handle('updates:status', () => {
+    const state = updates.status();
+    if (app.isPackaged) return state;
+    return { ...state, phase: 'source', message: 'To update from Git, save your work, close EZ Bench, and follow the Git update instructions.' };
+  });
+  handle('updates:open-git-guide', () => shell.openExternal('https://github.com/m-1310/ez-bench#update-a-git-installation'));
   handle('updates:check', () => updates.check());
   handle('updates:download', () => updates.download());
   handle('updates:cancel', () => { updates.cancel(); return true; });

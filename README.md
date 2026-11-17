@@ -20,7 +20,31 @@ The built-in SQLite playground runs this query against sample customer and order
 
 ## Run from a fresh clone
 
-Install [Node.js 24 LTS](https://nodejs.org/en/download) for Windows x64. Open PowerShell and run:
+### Install from Git and add a desktop shortcut
+
+Install [Git for Windows](https://git-scm.com/install/windows) and [Node.js 24 LTS](https://nodejs.org/en/download) for Windows x64. Open [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/install-powershell-on-windows) and run:
+
+```powershell
+$installDir = Join-Path $env:LOCALAPPDATA 'Programs\EZ Bench Source'
+git clone https://github.com/m-1310/ez-bench.git $installDir
+Set-Location $installDir
+./scripts/Install-FromGit.ps1
+```
+
+Open **EZ Bench (Source)** from your desktop. The script installs the pinned dependencies and Electron runtime, then points the shortcut at your Git checkout. Use this route if Windows blocks the unsigned EZ Bench setup. Keep the checkout in place so the shortcut can find it.
+
+If you already have a checkout in a folder you want to keep, run `./scripts/Install-FromGit.ps1` from that checkout instead.
+
+To update, close EZ Bench and run these commands from the installed checkout:
+
+```powershell
+git pull --ff-only
+./scripts/Install-FromGit.ps1
+```
+
+### Launch from PowerShell
+
+To run the app from a development checkout, open PowerShell and run:
 
 ```powershell
 git clone https://github.com/m-1310/ez-bench.git
@@ -31,6 +55,15 @@ npm.cmd start
 ```
 
 `npm.cmd ci` installs the pinned dependencies. `npm.cmd run setup` ensures Electron is available. On later launches, run `npm.cmd start` from `app` or `./scripts/Start-EZ-Bench.ps1` from the repository root.
+
+To create a shortcut by hand after running `npm.cmd ci` and `npm.cmd run setup`, stay in the `app` folder and print the shortcut target:
+
+```powershell
+$appDir = (Get-Location).Path
+'"{0}\node_modules\electron\dist\electron.exe" "{0}"' -f $appDir
+```
+
+On your desktop, right-click an empty area and choose **New > Shortcut**. Paste the printed line as the location and name it **EZ Bench (Source)**. To add the app icon, open the shortcut's **Properties > Change Icon** and select `icon.ico` from the `app` folder.
 
 Choose **Open playground** to start with a local SQLite database. For a remote database, choose **New connection**, enter the host, port, and credentials, then select **Test connection**. Use the certificate hostname for MySQL or MariaDB when TLS is enabled. See the [user guide](app/README.md) for SSH and backup options.
 

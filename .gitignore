@@ -49,6 +49,8 @@ test-results/
 profiles.json
 history.json
 snippets.json
+workspace.json
+workspace.json.tmp
 
 # Credentials and signing material. Public sample configuration is allowed.
 .env

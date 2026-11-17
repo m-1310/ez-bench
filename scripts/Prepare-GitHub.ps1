@@ -18,6 +18,7 @@ function Copy-PublicFile([string] $Relative) {
 Copy-PublicFile '.gitignore'
 Copy-PublicFile '.gitattributes'
 Copy-PublicFile 'README.md'
+Copy-PublicFile 'CHANGELOG.md'
 Copy-PublicFile 'SECURITY.md'
 Copy-Item -LiteralPath (Join-Path $projectRoot 'app\LICENSE') -Destination (Join-Path $OutputDirectory 'LICENSE')
 $excludedTests=@('live-ui.test.cjs','live-edit-transfer-ui.test.cjs','ssh-live-ui.test.cjs')

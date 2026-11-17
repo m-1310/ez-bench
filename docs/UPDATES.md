@@ -14,7 +14,7 @@ EZ Bench has a manual update flow under **Help > Check for updates** and **Setti
 
 **Show installer** reveals the verified setup for manual use. Closing the app without installing removes this session's completed download. A canceled/failed download removes its partial file. Interrupted processes can leave temporary files for normal Windows temporary-file cleanup. Launching setup retains its downloaded file so Windows can execute it.
 
-Profiles, ordinary query history and editor recovery remain in `%APPDATA%\Work EZ Bench`. Database files and backups are separate. Private SQL buffers are deliberately not recovered; save necessary SQL explicitly before closing. Setup does not restart the application automatically.
+Profiles, query history, snippets, settings, and workspace recovery remain in `%APPDATA%\Work EZ Bench`. Database files and backups stay at the paths you chose. After relaunch, choose **Resume SQL** in Overview to reopen drafts. Save private SQL to a file and apply pending table edits before updating. EZ Bench warns about work that still needs attention before it launches setup. Reconnect to the database yourself when ready, since the old connection and transaction end when the app closes. Setup does not restart the app automatically.
 
 Windows application policy can block an unsigned setup. A signed update manifest authenticates the release to EZ Bench; it is **not** an Authenticode signature and does not grant Windows publisher trust. Use an approved Windows code-signing process before publishing if required. Never bypass Windows security policy.
 

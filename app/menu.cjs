@@ -1,7 +1,7 @@
 const { Menu, dialog, app } = require('electron');
 const { all } = require('./command-catalog.js');
 
-function installMenu(getWindow) {
+function installMenu(getWindow, preferences) {
   const send = (id, value) => { const window = getWindow(); if (window && !window.isDestroyed()) window.webContents.send('app:action', { id, value }); };
   const action = id => {
     const command = all.find(item => item.id === id);
@@ -28,7 +28,7 @@ function installMenu(getWindow) {
     ] },
     { label: '&Query', submenu: [
       action('run-query'), action('run-script'), action('cancel-query'), separator(), action('explain'), action('save-snippet'),
-      { label: 'Stop script on error', type: 'checkbox', checked: true, click: item => send('stop-on-error', item.checked) }, separator(),
+      { label: 'Stop script on error', type: 'checkbox', checked: preferences?.stopOnError !== false, click: item => send('stop-on-error', item.checked) }, separator(),
       action('begin-transaction'), action('commit-transaction'), action('rollback-transaction'),
     ] },
     { label: '&Database', submenu: [

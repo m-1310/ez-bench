@@ -1,4 +1,4 @@
-# EZ Bench 0.9.8
+# EZ Bench
 
 A free Windows 10 and later (x64) SQL workspace for local files and remote database servers. The app header, Windows executable and installer share a graphite icon with an ivory and copper database stack. The workspace offers graphite and warm paper themes, connection and file actions, and a local SQLite playground.
 
@@ -110,6 +110,8 @@ The original app source is MIT licensed. Lucide icons retain their ISC/MIT notic
 ## App updates
 
 For a Git installation, choose **View Git update instructions** in the update dialog or follow the [Git update guide](../README.md#update-a-git-installation).
+
+Choose **Resume SQL** in Overview to reopen your last workspace. EZ Bench restores eligible SQL drafts and preferences from its app data folder. Pending table edits need to be applied to the database. Private and credential-bearing SQL needs an explicit file save if you want to keep it. Use **File > Save SQL file** to save changes to disk.
 
 Use **Help > Check for updates** or **Settings > Check for updates**. Checks and downloads run only when requested. Configured builds verify signed release metadata and installer hashes. Save SQL files, finish transactions, apply/discard grid changes and disconnect before **Close and install**. Windows may block unsigned setup. This build has no feed configured; the release owner must configure one before publishing update-enabled builds. Existing 0.5.0 users need a one-time manual upgrade. See [update publishing](../docs/UPDATES.md) in the source snapshot for setup and limitations.
 

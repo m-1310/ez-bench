@@ -5,6 +5,11 @@ const request = async (channel, arg) => {
   return result.value;
 };
 contextBridge.exposeInMainWorld('querydesk', {
+  loadWorkspace: () => ipcRenderer.sendSync('workspace:load'),
+  saveWorkspace: state => request('workspace:save', state),
+  warnUnsavedWork: warnings => request('workspace:warn', warnings),
+  finishClose: warnings => request('workspace:finish-close', warnings),
+  onPrepareClose: listener => { ipcRenderer.on('workspace:prepare-close', () => listener()); },
   snippets: () => request('snippets:list'),
   saveSnippet: value => request('snippets:save', value),
   removeSnippet: id => request('snippets:remove', id),

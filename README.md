@@ -4,7 +4,7 @@ EZ Bench is a Windows desktop SQL client for MySQL, MariaDB, PostgreSQL, SQL Ser
 
 [![Windows CI](https://github.com/m-1310/ez-bench/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/m-1310/ez-bench/actions/workflows/build.yml)
 
-[▶ Run EZ Bench](#run-from-a-fresh-clone) · [↻ Update from Git](#update-a-git-installation) · [▣ Screenshots](#screenshots) · [✎ Contribute](#contributions-welcome)
+[▶ Run EZ Bench](#run-from-a-fresh-clone) · [↻ Update from Git](#update-a-git-installation) · [▣ Screenshots](#screenshots) · [Release notes](CHANGELOG.md) · [✎ Contribute](#contributions-welcome)
 
 ## Screenshots
 
@@ -46,7 +46,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Git could not update this checkout. Resolve th
 ./scripts/Install-FromGit.ps1
 ```
 
-Open **EZ Bench (Source)** from your desktop again. The script refreshes the pinned dependencies and the existing shortcut. Your saved profiles and history are stored separately from the checkout.
+Open **EZ Bench (Source)** from your desktop again. The script refreshes the pinned dependencies and the existing shortcut. Your SQL drafts, settings, profiles, snippets, and history are stored separately from the checkout. Choose **Resume SQL** in Overview to reopen drafts. Check the [release notes](CHANGELOG.md) for changes in each version.
 
 In a Git installation, **Help > Check for updates** and **Settings > Check for updates** open the update dialog. Choose **View Git update instructions** to return to this guide.
 

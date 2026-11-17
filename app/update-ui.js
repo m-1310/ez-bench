@@ -57,9 +57,11 @@ window.installUpdates = function ({ api, canInstall, toast }) {
   $('#update-cancel').addEventListener('click', () => api.cancelUpdate().catch(error => toast(error.message)));
   $('#update-reveal').addEventListener('click', () => api.revealUpdate().catch(error => { $('#update-error').textContent = error.message; }));
   $('#update-install').addEventListener('click', async () => {
-    if (!canInstall()) { $('#update-error').textContent = 'Finish running work, save SQL files, apply or discard table edits, and disconnect before installing.'; return; }
     $('#update-install').disabled = true;
-    try { await api.installUpdate(); } catch (error) { $('#update-error').textContent = error.message; }
+    try {
+      if (!await canInstall()) { $('#update-error').textContent = 'Finish running work, save SQL files, apply or discard table edits, and disconnect before installing.'; return; }
+      await api.installUpdate();
+    } catch (error) { $('#update-error').textContent = error.message; }
     finally { $('#update-install').disabled = false; }
   });
 };

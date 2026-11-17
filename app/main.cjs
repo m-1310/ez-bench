@@ -26,12 +26,17 @@ let connectionEpoch = 0;
 let historyStore;
 let updates;
 let snippets;
+const MAX_WORKSPACE_BYTES = 16 * 1024 * 1024;
 app.on('second-instance', () => { if (window) { if (window.isMinimized()) window.restore(); window.show(); window.focus(); } });
 
 
+function isMainFrame(event) {
+  return window && event.sender === window.webContents && event.senderFrame === window.webContents.mainFrame;
+}
+
 function handle(name, fn) {
   ipcMain.handle(name, async (event, arg) => {
-    if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) {
+    if (!isMainFrame(event)) {
       throw new Error('Unrecognized application window.');
     }
     try { return { ok: true, value: await fn(arg) }; }
@@ -43,6 +48,55 @@ app.whenReady().then(() => {
   if (!isPrimaryInstance) return;
   const dataDir = app.getPath('userData');
   fs.mkdirSync(dataDir, { recursive: true });
+  const workspacePath = path.join(dataDir, 'workspace.json');
+  let workspace = null;
+  let workspaceContents;
+  let workspaceUnreadable = false;
+  let closeRequested = false;
+  let closeApproved = false;
+  try {
+    if (fs.statSync(workspacePath).size > MAX_WORKSPACE_BYTES) throw new Error('Workspace exceeds recovery limit.');
+    workspaceContents = fs.readFileSync(workspacePath, 'utf8');
+    workspace = JSON.parse(workspaceContents);
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      workspaceUnreadable = true;
+      console.warn('EZ Bench could not read workspace recovery.');
+    }
+  }
+  ipcMain.on('workspace:load', event => { event.returnValue = isMainFrame(event) ? workspace : null; });
+  handle('workspace:save', state => {
+    if (workspaceUnreadable) return false;
+    try {
+      const contents = JSON.stringify(state);
+      if (Buffer.byteLength(contents) > MAX_WORKSPACE_BYTES) throw new Error('Workspace exceeds recovery limit.');
+      if (contents !== workspaceContents) {
+        const temporary = workspacePath + '.tmp';
+        fs.writeFileSync(temporary, contents, 'utf8');
+        fs.renameSync(temporary, workspacePath);
+        workspaceContents = contents;
+        workspace = state;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  handle('workspace:warn', warnings => dialog.showMessageBox(window, {
+    type: 'warning', title: 'Unsaved work', message: 'You have unsaved work.', detail: warnings.join('\n\n'), buttons: ['Keep working'],
+  }));
+  handle('workspace:finish-close', async warnings => {
+    if (!closeRequested || closeApproved) return;
+    try {
+      if (warnings.length) {
+        const choice = await dialog.showMessageBox(window, { type: 'warning', title: 'Unsaved work', message: 'You have unsaved work.',
+          detail: warnings.join('\n\n'), buttons: ['Keep working', 'Close anyway'], defaultId: 0, cancelId: 0 });
+        if (choice.response !== 1) return;
+      }
+      closeApproved = true;
+      window.close();
+    } finally { closeRequested = false; }
+  });
   db = new DatabaseClient({ dataDir });
   profiles = new ProfileStore(dataDir);
   historyStore=new HistoryStore(dataDir);
@@ -233,8 +287,15 @@ app.whenReady().then(() => {
   });
 
   window = new BrowserWindow({ width: 1440, height: 940, minWidth: 1040, minHeight: 720, title: 'EZ Bench', icon: path.join(__dirname, 'icon.png'), backgroundColor: '#141619', show: false, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
-  installMenu(() => window);
-  window.webContents.on('will-prevent-unload', event => { const choice = dialog.showMessageBoxSync(window, { type: 'question', title: 'Unsaved table changes', message: 'Discard pending table edits and close EZ Bench?', detail: 'Changes that have not been applied will be lost.', buttons: ['Keep editing', 'Discard and close'], defaultId: 0, cancelId: 0 }); if (choice === 1) event.preventDefault(); });
+  installMenu(() => window, workspace?.preferences);
+  window.on('close', event => {
+    if (closeApproved || window.webContents.isCrashed() || window.webContents.isLoadingMainFrame()) return;
+    event.preventDefault();
+    if (!closeRequested) {
+      closeRequested = true;
+      window.webContents.send('workspace:prepare-close');
+    }
+  });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', event => event.preventDefault());
   window.loadFile('index.html');

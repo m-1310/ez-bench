@@ -95,6 +95,7 @@ test('find-and-replace handles literal dollars, selected matches, case and full 
     await screenshot(page, 'ez-bench-0.9.1-find.png'); await page.locator('#find-close').click();
     const value = await page.locator('#sql-editor').inputValue(); await app.close(); app = null;
     const restarted = await launch(dir); app = restarted.app; await restarted.page.locator('#demo-connect').click();
+    await restarted.page.waitForFunction(() => !busy && current?.mode === 'demo');
     assert.equal(await restarted.page.locator('#sql-editor').inputValue(), value);
   } finally { await app?.close(); fs.rmSync(dir, { recursive: true, force: true }); }
 });
@@ -221,6 +222,7 @@ test('Settings groups global actions, Overview opens SQL files, and navigation/c
     await page.waitForFunction(sql=>document.querySelector('#sql-editor').value===sql,sql);
     assert.equal(await page.locator('#dialect-badge').innerText(),'Not connected');
     await page.locator('#home-button').click();await page.locator('#demo-connect').click();
+    await page.locator('#new-tab').click();
     await run(page,'SELECT name, city FROM customers;');
     const fonts=await page.evaluate(()=>{
       const style=selector=>{const x=getComputedStyle(document.querySelector(selector));return{family:x.fontFamily,size:parseFloat(x.fontSize),weight:x.fontWeight,line:x.lineHeight};};

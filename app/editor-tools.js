@@ -17,7 +17,7 @@ window.BenchEditor=(()=>{
   document.addEventListener('DOMContentLoaded',()=>{
     const separator=node('editor-resize');let resizing=false;
     const resize=height=>{const area=document.querySelector('.editor-area'),maximum=Math.max(120,document.getElementById('editor-view').clientHeight-300);area.style.height=Math.min(maximum,Math.max(120,height))+'px';};
-    separator.onpointerdown=event=>{resizing=true;separator.setPointerCapture(event.pointerId);event.preventDefault();};separator.onpointermove=event=>{if(resizing)resize(event.clientY-document.querySelector('.editor-area').getBoundingClientRect().top);};separator.onpointerup=()=>{resizing=false;};separator.onpointercancel=()=>{resizing=false;};separator.onkeydown=event=>{if(event.key==='ArrowUp'||event.key==='ArrowDown'){event.preventDefault();resize(document.querySelector('.editor-area').clientHeight+(event.key==='ArrowUp'?-20:20));}};
+    separator.onpointerdown=event=>{resizing=true;separator.setPointerCapture(event.pointerId);event.preventDefault();};separator.onpointermove=event=>{if(resizing)resize(event.clientY-document.querySelector('.editor-area').getBoundingClientRect().top);};separator.onpointerup=separator.onpointercancel=()=>{resizing=false;flushEditorState();};separator.onkeydown=event=>{if(event.key==='ArrowUp'||event.key==='ArrowDown'){event.preventDefault();resize(document.querySelector('.editor-area').clientHeight+(event.key==='ArrowUp'?-20:20));flushEditorState();}};
     const editor=node('sql-editor');editor.addEventListener('keydown',event=>{
       if(event.ctrlKey&&event.code==='Space'){event.preventDefault();complete();return;}
       if(node('sql-completions').hidden)return;

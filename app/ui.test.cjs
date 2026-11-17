@@ -43,6 +43,105 @@ async function runSql(page, sql, expectedMessage) {
   await page.waitForFunction(() => !document.querySelector('#run-query').disabled);
 }
 
+test('restart restores pending SQL and settings after warning about unsaved file and private edits', { timeout: 60000 }, async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ezbench-recovery-ui-'));
+  const sqlFile = path.join(dataDir, 'report.sql');
+  const original = 'SELECT 1 AS saved_report;';
+  const draft = 'SELECT 2 AS unexecuted_draft;';
+  const fileEdit = 'SELECT 3 AS unexported_edit;';
+  const privateSql = 'SELECT 4 AS private_fixture;';
+  fs.writeFileSync(sqlFile, original);
+  let application, page;
+  try {
+    ({ application, page } = await launch(dataDir));
+    await application.evaluate(({ dialog, Menu, BrowserWindow }, file) => {
+      dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] });
+      const query = Menu.getApplicationMenu().items.find(item => item.label === '&Query');
+      const stop = query.submenu.items.find(item => item.label === 'Stop script on error');
+      stop.click(stop, BrowserWindow.getAllWindows()[0]);
+      const { promise, resolve } = Promise.withResolvers();
+      globalThis.unsavedPrompt = promise;
+      dialog.showMessageBox = async (_window, options) => { resolve(options); return { response: 0 }; };
+    }, sqlFile);
+    await page.waitForFunction(() => stopOnError === false);
+    await workspaceAction(page, 'theme-toggle');
+    await page.locator('#sidebar-toggle').click();
+    await page.locator('#overview-open-sql').click();
+    await page.getByRole('tab', { name: /^report\.sql/ }).waitFor();
+    await page.locator('#wrap-toggle').click();
+    await page.locator('#sql-editor').fill(fileEdit);
+    await page.locator('#new-tab').click();
+    await page.locator('#private-query').check();
+    await page.locator('#sql-editor').fill(privateSql);
+    await page.locator('#new-tab').click();
+    await page.locator('#sql-editor').fill(draft);
+    await application.evaluate(({ BrowserWindow }) => { BrowserWindow.getAllWindows()[0].close(); });
+    const prompt = await application.evaluate(() => globalThis.unsavedPrompt);
+    assert.match(prompt.message, /unsaved work/i);
+    assert.match(prompt.detail, /Private or credential-bearing SQL/);
+    assert.match(prompt.detail, /opened SQL file/);
+    assert.equal(prompt.buttons[prompt.defaultId], 'Keep working');
+    assert.equal(await page.locator('#sql-editor').inputValue(), draft);
+    assert.equal(fs.readFileSync(sqlFile, 'utf8'), original);
+
+    await application.evaluate(({ dialog }) => { dialog.showMessageBox = async () => ({ response: 1 }); });
+    await application.close();
+    application = null;
+    const recovery = fs.readFileSync(path.join(dataDir, 'workspace.json'), 'utf8');
+    assert.ok(recovery.includes(draft) && recovery.includes(fileEdit));
+    assert.equal(recovery.includes(privateSql), false);
+
+    ({ application, page } = await launch(dataDir));
+    await page.locator('#overview-resume-sql').click();
+    assert.equal(await page.locator('#sql-editor').inputValue(), draft);
+    assert.equal(await page.locator('#connection-status').textContent(), 'No active connection');
+    assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+    assert.equal(await page.locator('#sidebar-toggle').getAttribute('aria-expanded'), 'false');
+    assert.equal(await page.locator('#wrap-toggle').getAttribute('aria-pressed'), 'true');
+    assert.equal(await application.evaluate(({ Menu }) => Menu.getApplicationMenu().items.find(item => item.label === '&Query').submenu.items.find(item => item.label === 'Stop script on error').checked), false);
+    await page.getByRole('tab', { name: /^report\.sql/ }).click();
+    assert.equal(await page.locator('#sql-editor').inputValue(), fileEdit);
+    await page.getByRole('tab', { name: /^Query 3/ }).click();
+    assert.equal(await page.locator('#private-query').isChecked(), true);
+    assert.equal(await page.locator('#sql-editor').inputValue(), '');
+  } finally {
+    if (application) {
+      await application.evaluate(({ dialog }) => { dialog.showMessageBox = async () => ({ response: 1 }); });
+      await application.close();
+    }
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
+});
+
+test('existing local storage editor recovery migrates to the version-independent workspace file', { timeout: 60000 }, async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ezbench-existing-recovery-'));
+  const draft = 'SELECT 20 AS legacy_draft;';
+  let application, page;
+  try {
+    ({ application, page } = await launch(dataDir));
+    await page.evaluate(sql => {
+      const state = { tabs: [{ id: 3, name: 'Legacy draft', sql }], activeTab: 3, tabCount: 3 };
+      localStorage.setItem('work-ez-bench.tabs', JSON.stringify(state));
+      localStorage.setItem('work-ez-bench.workspaces', JSON.stringify({ playground: state }));
+      localStorage.setItem('work-ez-bench.theme', 'light');
+    }, draft);
+    await application.close();
+    application = null;
+    fs.unlinkSync(path.join(dataDir, 'workspace.json'));
+
+    ({ application, page } = await launch(dataDir));
+    await page.locator('#overview-resume-sql').click();
+    assert.equal(await page.locator('#sql-editor').inputValue(), draft);
+    assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+    await page.waitForFunction(() => localStorage.getItem('work-ez-bench.tabs') === null);
+    const recovery = JSON.parse(fs.readFileSync(path.join(dataDir, 'workspace.json'), 'utf8'));
+    assert.equal(recovery.workspaces.playground.tabs[0].sql, draft);
+  } finally {
+    await application?.close();
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
+});
+
 test('desktop UI executes real SQL, restores editor/history, and persists credential-free profiles', { timeout: 120000 }, async () => {
   assert.ok(fs.existsSync(executablePath), 'Electron must be installed before running the UI test.');
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'querydesk-ui-test-'));

@@ -12,6 +12,8 @@ The portable app is built in `build/EZ Bench <version>/`. The scripts write the 
 
 ## Verify the release
 
+Add a section headed by the new version in [CHANGELOG.md](../CHANGELOG.md). Record user-visible changes, update or migration steps, and known limitations. The Windows build checks for a matching version entry. Use that entry when publishing the corresponding GitHub release.
+
 ```powershell
 $version = (Get-Content app/package.json -Raw | ConvertFrom-Json).version
 $setup = "./releases/$version/EZ-Bench-Setup-$version.exe"

@@ -84,6 +84,30 @@ test('desktop update dialog opens the Git guide, verifies signed offers and bloc
     fs.mkdirSync(path.resolve(__dirname, '../evidence'), { recursive: true });
     await workspaceAction(page,'check-updates');
     await page.screenshot({ path: path.resolve(__dirname, '../evidence/ez-bench-0.6-updates.png') });
+    await page.locator('#update-close').click();
+    await page.locator('#disconnect').click();
+    await page.locator('#demo-connect').waitFor();
+    await application.evaluate(({ Menu, BrowserWindow }) => {
+      const results = Menu.getApplicationMenu().getMenuItemById('results-tab');
+      results.click(results, BrowserWindow.getAllWindows()[0]);
+    });
+    await page.locator('#private-query').check();
+    await page.locator('#sql-editor').fill('SELECT 1 AS private_update_fixture');
+    await application.evaluate(({ dialog }) => {
+      const { promise, resolve } = Promise.withResolvers();
+      globalThis.updatePrompt = promise;
+      dialog.showMessageBox = async (_window, options) => { resolve(options); return { response: 0 }; };
+    });
+    await workspaceAction(page,'check-updates');
+    await page.locator('#update-install').click();
+    const warning = await application.evaluate(() => globalThis.updatePrompt);
+    assert.equal(warning.title, 'Unsaved work');
+    assert.match(warning.detail, /Private or credential-bearing SQL/);
+    assert.doesNotMatch(fs.readFileSync(path.join(dataDir, 'workspace.json'), 'utf8'), /private_update_fixture/);
     assert.deepEqual(errors, []);
-  } finally { await application.close(); fs.rmSync(dataDir, { recursive: true, force: true }); }
+  } finally {
+    await application.evaluate(({ dialog }) => { dialog.showMessageBox = async () => ({ response: 1 }); });
+    await application.close();
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
 });

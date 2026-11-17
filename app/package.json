@@ -1,7 +1,7 @@
 {
   "name": "ez-bench",
   "productName": "EZ Bench",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "private": true,
   "description": "A desktop SQL workspace for local and remote databases",
   "main": "main.cjs",

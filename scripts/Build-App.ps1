@@ -4,6 +4,11 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $appRoot = Join-Path $projectRoot 'app'
 $appVersion = (Get-Content -LiteralPath (Join-Path $appRoot 'package.json') -Raw | ConvertFrom-Json).version
 if ((Get-Content -LiteralPath (Join-Path $appRoot 'package-lock.json') -Raw | ConvertFrom-Json -AsHashtable).version -ne $appVersion) { throw 'package.json and package-lock.json versions differ.' }
+$releaseNotes = Join-Path $projectRoot 'CHANGELOG.md'
+$versionHeading = '^## ' + [regex]::Escape($appVersion) + '\s*$'
+if (!(Test-Path -LiteralPath $releaseNotes -PathType Leaf) -or !(Select-String -LiteralPath $releaseNotes -Pattern $versionHeading -Quiet)) {
+    throw ('Add release notes for ' + $appVersion + ' to CHANGELOG.md before building.')
+}
 $updateConfig = @{feedUrl='';publicKey='';downloadHosts=@()}
 if ($UpdateFeedUrl -or $UpdatePublicKeyPath) {
     if (!$UpdateFeedUrl -or !$UpdatePublicKeyPath) { throw 'Set both UpdateFeedUrl and UpdatePublicKeyPath, or neither.' }
@@ -34,6 +39,7 @@ New-Item -ItemType Directory -Path $packageRoot | Out-Null
 foreach ($name in @('package.json','package-lock.json','main.cjs','preload.cjs','menu.cjs','renderer.js','workspace-menu.js','command-catalog.js','shortcuts-ui.js','update-service.cjs','update-ui.js','table-browse.cjs','table-browse-ui.js','snippet-store.cjs','snippets-ui.js','editor-search.js','editor-search-ui.js','ssh-ui.js','tab-tools.js','ssh-tunnel.cjs','table-editor.js','database-transfer-ui.js','history-store.cjs','history-ui.js','history-ui.css','sql-privacy.js','sql-text.js','editor-tools.js','result-reader.cjs','child-env.cjs','index.html','styles.css','workspace-ui.css','icons.js','theme-init.js','ICON-LICENSE.txt','database.cjs','table-edit.cjs','database-transfer.cjs','database-client.cjs','database-worker.cjs','profiles.cjs','icon.svg','icon.png','icon.ico','LICENSE','README.md')) {
     Copy-Item -LiteralPath (Join-Path $appRoot $name) -Destination $packageRoot
 }
+Copy-Item -LiteralPath $releaseNotes -Destination $packageRoot
 $updateConfigJson | Set-Content -LiteralPath (Join-Path $packageRoot 'update-config.json') -Encoding utf8
 if(!$ClientFree -and (Test-Path -LiteralPath (Join-Path $appRoot 'vendor'))){Copy-Item -LiteralPath (Join-Path $appRoot 'vendor') -Destination $packageRoot -Recurse}
 $originalPath = $env:Path

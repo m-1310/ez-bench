@@ -26,5 +26,5 @@ test('editor runs current statements, completes names, pages tables and preserve
   await run('SELECT 1 AS resumed_private');
   await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1040,720));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const bounds=await page.locator('#result-table').boundingBox();assert.ok(bounds.height>30);assert.deepEqual(errors,[]);
- }finally{if(app)await app.close();assert.ok(path.resolve(directory).startsWith(path.resolve(os.tmpdir())+path.sep)&&path.basename(directory).startsWith('ezbench-editor-ui-'));fs.rmSync(directory,{recursive:true,force:true});}
+ }finally{if(app){await app.evaluate(({dialog})=>{dialog.showMessageBox=async()=>({response:1});});await app.close();}assert.ok(path.resolve(directory).startsWith(path.resolve(os.tmpdir())+path.sep)&&path.basename(directory).startsWith('ezbench-editor-ui-'));fs.rmSync(directory,{recursive:true,force:true});}
 });

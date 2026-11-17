@@ -1,8 +1,10 @@
 # Windows releases and in-app updates
 
+For a Git installation, follow the [Git update instructions](../README.md#update-a-git-installation).
+
 EZ Bench has a manual update flow under **Help > Check for updates** and **Settings > Check for updates**. It performs no startup check, background polling, automatic download, scheduled task or update service. The UI polls progress only while an update operation is active. Checks send an ordinary HTTPS request to the configured feed, not database details, SQL, profiles or credentials.
 
-## User workflow
+## Packaged app workflow
 
 1. Open Updates and choose **Check now**.
 2. If a newer stable Windows x64 release exists, choose **Download update**.

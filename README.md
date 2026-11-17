@@ -4,7 +4,7 @@ EZ Bench is a Windows desktop SQL client for MySQL, MariaDB, PostgreSQL, SQL Ser
 
 [![Windows CI](https://github.com/m-1310/ez-bench/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/m-1310/ez-bench/actions/workflows/build.yml)
 
-[▶ Run EZ Bench](#run-from-a-fresh-clone) · [▣ Screenshots](#screenshots) · [✎ Contribute](#contributions-welcome)
+[▶ Run EZ Bench](#run-from-a-fresh-clone) · [↻ Update from Git](#update-a-git-installation) · [▣ Screenshots](#screenshots) · [✎ Contribute](#contributions-welcome)
 
 ## Screenshots
 
@@ -35,12 +35,20 @@ Open **EZ Bench (Source)** from your desktop. The script installs the pinned dep
 
 If you already have a checkout in a folder you want to keep, run `./scripts/Install-FromGit.ps1` from that checkout instead.
 
-To update, close EZ Bench and run these commands from the installed checkout:
+### Update a Git installation
+
+Save your SQL files and close EZ Bench. Open PowerShell 7 and run the following commands. If you cloned to a different folder, use that path on the first line.
 
 ```powershell
+Set-Location -LiteralPath (Join-Path $env:LOCALAPPDATA 'Programs\EZ Bench Source') -ErrorAction Stop
 git pull --ff-only
+if ($LASTEXITCODE -ne 0) { throw 'Git could not update this checkout. Resolve the Git error before continuing.' }
 ./scripts/Install-FromGit.ps1
 ```
+
+Open **EZ Bench (Source)** from your desktop again. The script refreshes the pinned dependencies and the existing shortcut. Your saved profiles and history are stored separately from the checkout.
+
+In a Git installation, **Help > Check for updates** and **Settings > Check for updates** open the update dialog. Choose **View Git update instructions** to return to this guide.
 
 ### Launch from PowerShell
 

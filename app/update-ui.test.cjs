@@ -9,13 +9,13 @@ const os = require('node:os');
 const { _electron } = require('playwright');
 const executablePath = process.env.WORK_EZ_BENCH_EXECUTABLE || path.join(__dirname, 'node_modules/electron/dist/electron.exe');
 
-test('desktop update dialog stays idle, checks signed offers, verifies downloads and blocks connected installs', { timeout: 60000 }, async () => {
+test('desktop update dialog opens the Git guide, verifies signed offers and blocks connected installs', { timeout: 60000 }, async () => {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ez-update-ui-'));
   const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE;
   const application = await _electron.launch({ executablePath, args: [__dirname, '--data-dir=' + dataDir], env });
   const errors = [];
   try {
-    const currentVersion = await application.evaluate(({ app }) => app.getVersion());
+    const { currentVersion, isPackaged } = await application.evaluate(({ app }) => ({ currentVersion: app.getVersion(), isPackaged: app.isPackaged }));
     const nextVersion = (Number(currentVersion.split('.')[0]) + 1) + '.0.0';
     const page = await application.firstWindow();
     page.on('pageerror', error => errors.push(error.message));
@@ -23,12 +23,27 @@ test('desktop update dialog stays idle, checks signed offers, verifies downloads
     await workspaceAction(page,'check-updates');
     assert.ok((await page.locator('#update-current').innerText()).includes(currentVersion));
     assert.ok((await page.locator('#update-current').innerText()).includes('Windows 10+'));
-    assert.equal(await page.locator('#update-check').isDisabled(), true);
-    assert.ok((await page.locator('#update-message').innerText()).includes('not configured'));
+    const guide = page.getByRole('button', { name: 'View Git update instructions' });
+    if (isPackaged) {
+      assert.equal(await guide.isVisible(), false);
+      assert.equal(await page.locator('#update-check').isVisible(), true);
+    } else {
+      assert.match(await page.locator('#update-message').innerText(), /update from Git/);
+      assert.equal(await page.locator('#update-check').isVisible(), false);
+      assert.equal(await page.locator('#update-package-note').isVisible(), false);
+      await application.evaluate(({ shell }) => {
+        globalThis.openedGitGuide = new Promise(resolve => {
+          shell.openExternal = async url => { resolve(url); };
+        });
+      });
+      await guide.click();
+      assert.equal(await application.evaluate(() => globalThis.openedGitGuide), 'https://github.com/m-1310/ez-bench#update-a-git-installation');
+    }
     await page.locator('#update-close').click();
     // Exercise real IPC, service signature validation and file verification using
     // an isolated test-only transport. Never launch a setup executable.
     await application.evaluate(({ app }, version) => {
+      if (!app.isPackaged) Object.defineProperty(app, 'isPackaged', { value: true });
       const require = process.getBuiltinModule('node:module').createRequire(app.getAppPath() + '/package.json');
       const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
       const module = require(path.join(app.getAppPath(), 'update-service.cjs'));
